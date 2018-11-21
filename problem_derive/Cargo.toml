@@ -1,0 +1,22 @@
+[package]
+name = "problem_derive"
+version = "0.1.0"
+description = "A procedural macro for deriving Into<Problem>"
+authors = ["Mykyta Holubakha <hilobakho@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+edition = "2018"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+quote = "0.6.10"
+syn = "0.15.21"
+proc-macro2 = { version = "0.4.24", default-features = false }
+problem = { version="*", path=".." }
+darling = "0.8.0"
+
+[dev-dependencies]
+serde = "1.0.80"
+serde_json = "1.0.33"
