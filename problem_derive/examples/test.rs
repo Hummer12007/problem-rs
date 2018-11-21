@@ -4,7 +4,7 @@ extern crate problem;
 extern crate serde;
 extern crate serde_json;
 
-use problem::{Problem, ToProblem};
+use problem::{Problem, ToProblem, ProblemBuilder};
 
 #[derive(ToProblem)]
 pub enum DBError {

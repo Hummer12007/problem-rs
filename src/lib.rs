@@ -1,8 +1,12 @@
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
+#[macro_use]
+extern crate derive_builder;
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+
+#[derive(Builder, Debug, Serialize, Deserialize, Clone, Default)]
+#[builder(public, default)]
 pub struct Problem {
     pub title: String,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -30,22 +34,10 @@ where
 }
 
 impl Problem {
-    pub fn new_named(title: &str) -> Problem {
-        Problem::new(title, None, None, None, None)
-    }
-
-    pub fn new(title: &str,
-        status: Option<u16>,
-        type_url: Option<&str>,
-        detail: Option<&str>,
-        instance: Option<&str>,
-    ) -> Problem {
-        Problem {
-            title: title.to_string(),
-            status,
-            type_url: type_url.map(String::from),
-            detail: detail.map(String::from),
-            instance: instance.map(String::from)
-        }
+    pub fn new(title: &str) -> Problem {
+        ProblemBuilder::default()
+            .title(title.to_string())
+            .build()
+            .unwrap()
     }
 }

@@ -11,6 +11,7 @@ edition = "2018"
 serde_derive = "1.0.80"
 serde = "1.0.80"
 rocket = { version = "0.4.0-rc.1", optional = true }
+derive_builder = "0.7.0"
 
 [features]
 rocket_responder = ["rocket"]

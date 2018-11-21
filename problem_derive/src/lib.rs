@@ -30,8 +30,12 @@ fn attr_name(attr: &Attribute) -> Option<Ident> {
     attr.interpret_meta().map(|v| v.name())
 }
 
-fn opt_literal<T: ToTokens>(val: Option<T>) -> TokenStream {
-    val.map(|v| quote!{Some(#v)}).unwrap_or_else(|| quote!{None})
+fn opt_literal<T: ToTokens>(name:TokenStream, val: Option<T>, postfix: TokenStream) -> TokenStream {
+    if let Some(v) = val {
+        quote!{.#name(Some(#v#postfix))}
+    } else {
+        quote!{}
+    }
 }
 
 fn implement(self_name: &Ident, variant: &Variant) -> TokenStream {
@@ -48,19 +52,28 @@ fn implement(self_name: &Ident, variant: &Variant) -> TokenStream {
     match attr.and_then(Attribute::interpret_meta) {
         Some(Meta::Word(_)) | None => quote! {
             (#self_name::#variant_name) =>
-                Problem::new_named(#q),
+                Problem::new(#q),
         },
         Some(Meta::List(ml)) => {
             let items = ml.nested.iter().map(|x| x.clone()).collect::<Vec<_>>();
             let m = ProblemMeta::from_list(items.as_slice()).unwrap();
             let ProblemMeta {title, status, type_instance, detail, instance} = m;
-            let status_token = opt_literal(status);
-            let tinst_token = opt_literal(type_instance);
-            let det_token = opt_literal(detail);
-            let inst_token = opt_literal(instance);
+            let status_token =
+                opt_literal(quote!{status}, status, quote!{});
+            let type_instance_token =
+                opt_literal(quote!{type_url}, type_instance, quote!{.to_string()});
+            let detail_token = opt_literal(quote!{detail}, detail, quote!{.to_string()});
+            let instance_token = opt_literal(quote!{instance}, instance, quote!{.to_string()});
             quote!{
                 (#self_name::#variant_name) =>
-                    Problem::new(#title, #status_token, #tinst_token, #det_token, #inst_token),
+                    ProblemBuilder::default()
+                        .title(#title.to_string())
+                        #status_token
+                        #type_instance_token
+                        #detail_token
+                        #instance_token
+                        .build()
+                        .unwrap(),
             }
         }
         _ => panic!("Unexpected attribute parameters."),
