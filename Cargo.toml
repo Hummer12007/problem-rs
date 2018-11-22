@@ -1,6 +1,6 @@
 [package]
 name = "problem"
-version = "0.1.0"
+version = "0.1.1"
 description = "A procedural macro for deriving Into<Problem>"
 authors = ["Mykyta Holubakha <hilobakho@gmail.com>"]
 license = "MIT"
