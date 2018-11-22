@@ -4,6 +4,7 @@ extern crate serde_derive;
 #[macro_use]
 extern crate derive_builder;
 
+use serde_json;
 
 #[derive(Builder, Debug, Serialize, Deserialize, Clone, Default)]
 #[builder(public, default)]
@@ -39,5 +40,23 @@ impl Problem {
             .title(title.to_string())
             .build()
             .unwrap()
+    }
+}
+
+#[cfg(feature = "rocket_responder")]
+impl<'r> rocket::response::Responder<'r> for Problem {
+    fn respond_to(self, _request: &rocket::Request) -> Result<rocket::Response<'r>, rocket::http::Status> {
+        use rocket::http::ContentType;
+        use rocket::http::Status;
+        use rocket::Response;
+        use std::io::Cursor;
+
+        let response = Response::build()
+            .status(self.status.and_then(Status::from_code).unwrap_or(Status::InternalServerError))
+            .sized_body(Cursor::new(serde_json::to_vec(&self).unwrap()))
+            .header(ContentType::new("application", "problem+json"))
+            .finalize();
+
+        Ok(response)
     }
 }

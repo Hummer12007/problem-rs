@@ -30,12 +30,8 @@ fn attr_name(attr: &Attribute) -> Option<Ident> {
     attr.interpret_meta().map(|v| v.name())
 }
 
-fn opt_literal<T: ToTokens>(name:TokenStream, val: Option<T>, postfix: TokenStream) -> TokenStream {
-    if let Some(v) = val {
-        quote!{.#name(Some(#v#postfix))}
-    } else {
-        quote!{}
-    }
+fn opt_literal<T: ToTokens>(name:TokenStream, val: Option<T>, postfix: TokenStream) -> Option<TokenStream> {
+    val.map(|v| quote!{.#name(Some(#v#postfix))})
 }
 
 fn implement(self_name: &Ident, variant: &Variant) -> TokenStream {
@@ -58,10 +54,8 @@ fn implement(self_name: &Ident, variant: &Variant) -> TokenStream {
             let items = ml.nested.iter().map(|x| x.clone()).collect::<Vec<_>>();
             let m = ProblemMeta::from_list(items.as_slice()).unwrap();
             let ProblemMeta {title, status, type_instance, detail, instance} = m;
-            let status_token =
-                opt_literal(quote!{status}, status, quote!{});
-            let type_instance_token =
-                opt_literal(quote!{type_url}, type_instance, quote!{.to_string()});
+            let status_token = opt_literal(quote!{status}, status, quote!{});
+            let type_instance_token = opt_literal(quote!{type_url}, type_instance, quote!{.to_string()});
             let detail_token = opt_literal(quote!{detail}, detail, quote!{.to_string()});
             let instance_token = opt_literal(quote!{instance}, instance, quote!{.to_string()});
             quote!{

@@ -6,6 +6,7 @@ extern crate serde_json;
 
 use problem::{Problem, ToProblem, ProblemBuilder};
 
+
 #[derive(ToProblem)]
 pub enum DBError {
     TestError,
