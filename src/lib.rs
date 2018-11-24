@@ -54,7 +54,7 @@ impl<'r> rocket::response::Responder<'r> for Problem {
         let response = Response::build()
             .status(self.status.and_then(Status::from_code).unwrap_or(Status::InternalServerError))
             .sized_body(Cursor::new(serde_json::to_vec(&self).unwrap()))
-            .header(ContentType::new("application", "problem+json"))
+            .header(ContentType::new("application", "json"))
             .finalize();
 
         Ok(response)
